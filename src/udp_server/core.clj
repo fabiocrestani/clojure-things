@@ -18,19 +18,24 @@
     (let [buffer (byte-array 512)
         packet (DatagramPacket. buffer 512)]
         (.receive socket packet)
-        (println (.getAddress packet))
-        (String. (.getData packet) 0 (.getLength packet))
-            ;;(.getAdress packet)
+        (def data 
+            (String. (.getData packet) 0 (.getLength packet)))
+        (or packet true)
     ))
 
 (defn udp-receive-loop
     [socket f]
     (future (while true (f (udp-receive socket)))))
 
-(defn callback
-    [input]
-    (println "<" input)
-    ;; (udp-send socket input "localhost" 1234)
+(defn udp-receive-callback
+    [^DatagramPacket packet]
+    (def data 
+         (String. (.getData packet) 0 (.getLength packet)))
+    (def length (.getLength packet))
+    (def address (.getSocketAddress packet))
+    (println "<" data "(" length ")" address)
+    
+    ;; (udp-siend socket input "localhost" 1234)
 )
 
 (defn -main
@@ -39,7 +44,7 @@
     (def port 1234)
     (println "Starting listener on UDP port" port)
     (def socket (DatagramSocket. port))
-    (udp-receive-loop socket callback)
+    (udp-receive-loop socket udp-receive-callback)
 )
 
 
