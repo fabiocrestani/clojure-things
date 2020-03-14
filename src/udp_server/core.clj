@@ -1,10 +1,3 @@
-;;(import '[java.net DatagramSocket
-;;                   DatagramPacket
-;;                   InetSocketAddress])
-
-;; (ns udp-server.core
-;;     (:gen-class))
-
 (ns udp-server.core
     (:import (java.net InetAddress DatagramPacket DatagramSocket InetSocketAddress)
              (java.nio.charset Charset))
@@ -25,19 +18,28 @@
     (let [buffer (byte-array 512)
         packet (DatagramPacket. buffer 512)]
         (.receive socket packet)
-        (String. (.getData packet)
-            0 (.getLength packet))))
+        (println (.getAddress packet))
+        (String. (.getData packet) 0 (.getLength packet))
+            ;;(.getAdress packet)
+    ))
 
 (defn udp-receive-loop
     [socket f]
     (future (while true (f (udp-receive socket)))))
 
+(defn callback
+    [input]
+    (println "<" input)
+    ;; (udp-send socket input "localhost" 1234)
+)
+
 (defn -main
-    "I don't do a whole lot ... yet."
+    "Simple UDP echo."
     [& args]
-    (println "Hello, World!!!")
-    (def socket (DatagramSocket. 8888))
-    (udp-receive-loop socket println)
+    (def port 1234)
+    (println "Starting listener on UDP port" port)
+    (def socket (DatagramSocket. port))
+    (udp-receive-loop socket callback)
 )
 
 
