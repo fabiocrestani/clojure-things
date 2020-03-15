@@ -1,3 +1,9 @@
+;; core.clj
+;; udp-server
+;; Author: Fabio Crestani
+;; Date: 15.03.2020
+;; Description: Simple UDP server which echoes back every received message
+
 (ns udp-server.core
     (:import (java.net InetAddress DatagramPacket DatagramSocket InetSocketAddress)
              (java.nio.charset Charset))
@@ -25,18 +31,19 @@
 
 (defn udp-receive-loop
     [socket f]
-    (future (while true (f (udp-receive socket)))))
+    (future (while true (f (udp-receive socket) socket))))
 
 (defn udp-receive-callback
-    [^DatagramPacket packet]
+    "Callback to handle a received DatagramPacket. This examples echoes the input"
+    [^DatagramPacket packet ^DatagramSocket socket]
     (def data 
          (String. (.getData packet) 0 (.getLength packet)))
-    (def length (.getLength packet))
-    (def address (.getSocketAddress packet))
-    (println "<" data "(" length ")" address)
-    
-    ;; (udp-siend socket input "localhost" 1234)
-)
+    (println "<" data)
+    (def data_response (str "!" data)) 
+    (def hostname (.getHostName (cast InetSocketAddress (.getSocketAddress packet))))
+    (def port (.getPort (cast InetSocketAddress (.getSocketAddress packet))))
+    (println ">" data_response)
+    (udp-send socket data_response hostname port))
 
 (defn -main
     "Simple UDP echo."
@@ -44,8 +51,7 @@
     (def port 1234)
     (println "Starting listener on UDP port" port)
     (def socket (DatagramSocket. port))
-    (udp-receive-loop socket udp-receive-callback)
-)
+    (udp-receive-loop socket udp-receive-callback))
 
 
 
