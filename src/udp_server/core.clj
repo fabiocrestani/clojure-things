@@ -11,12 +11,15 @@
 
 (defn udp-send
     "Sends a UDP message"
-    [^DatagramSocket socket msg host port]
-    (let [payload (.getBytes msg)
-        length (min (alength payload) 512)
-        address (InetSocketAddress. host port)
-        packet (DatagramPacket. payload length address)]
-        (.send socket packet)))
+    [^DatagramSocket socket msg length host port]
+    (def length (min length 512))
+    ;;(let [payload (.getBytes msg)
+      ;;  length2 (min length 512)
+       ;; address (InetSocketAddress. host port)
+       ;; packet (DatagramPacket. payload length2 address)]
+       ;; (.send socket packet)))
+    (def packet (DatagramPacket. msg length (InetSocketAddress. host port)))
+    (.send socket packet))
 
 (defn udp-receive
     "Block until a UDP message is received"
@@ -36,14 +39,14 @@
 (defn udp-receive-callback
     "Callback to handle a received DatagramPacket. This examples echoes the input"
     [^DatagramPacket packet ^DatagramSocket socket]
-    (def data 
-         (String. (.getData packet) 0 (.getLength packet)))
-    (println "<" data)
-    (def data_response (str "!" data)) 
+    (def data (.getData packet))
+    (def length (.getLength packet))
+    (def data-str (String. data 0 length))
+    (println "<" data-str)
     (def hostname (.getHostName (cast InetSocketAddress (.getSocketAddress packet))))
     (def port (.getPort (cast InetSocketAddress (.getSocketAddress packet))))
-    (println ">" data_response)
-    (udp-send socket data_response hostname port))
+    (println ">" data-str)
+    (udp-send socket data length hostname port))
 
 (defn -main
     "Simple UDP echo."
