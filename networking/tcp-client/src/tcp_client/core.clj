@@ -12,12 +12,9 @@
     [gloss.io :as io])
   (:gen-class))
 
-; Here, we define a simple protocol where each frame starts 
-; with a 32-bit integer describing the length of the string
-; which follows. We assume the string is EDN-encoded, and so
-; we define a pre-encoder of pr-str, which will turn our
-; arbitrary value into a string, and a post-decoder of 
-; clojure.edn/read-string, which will transform our string
+; Here, we define a simple protocol where each frame starts with a 32-bit integer describing the length of the string
+; which follows. We assume the string is EDN-encoded, and so we define a pre-encoder of pr-str, which will turn our
+; arbitrary value into a string, and a post-decoder of clojure.edn/read-string, which will transform our string
 ; into a data structure.
 ; (def protocol
 ;   (gloss/compile-frame
@@ -25,11 +22,10 @@
 ;     edn/read-string))
 
 (def protocol
-  (gloss/compile-frame
-    (gloss/string :utf-8)
-      pr-str
-      edn/read-string))
-      
+  (gloss/string :utf-8))
+
+
+
 ;; This function takes a raw TCP **duplex stream** which represents bidirectional communication
 ;; via a single stream.  Messages from the remote endpoint can be consumed via `take!`, and
 ;; messages can be sent to the remote endpoint via `put!`.  It returns a duplex stream which
@@ -112,7 +108,7 @@
   ;; TCP is a streaming protocol, it is not guaranteed to arrive as a single packet, so the server
   ;; must be robust to split messages.  Since both client and server are using Gloss codecs, this
   ;; is automatic.
-  (println @(s/put! c "temperature"))  ; => true
+  (println @(s/put! c "voltage"))  ; => true
 
   ;; The message is parsed by the server, and the response is sent, which again may be split
   ;; while in transit between the server and client.  The bytes are consumed and parsed by
