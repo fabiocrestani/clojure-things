@@ -10,7 +10,9 @@
 (import '[java.net ServerSocket])
 
 (defn test-host-get-voltage[]
-  (format "%.3f" (+ 13.5 (float (/ (rand-int 50) 100)))))
+  (def voltage (format "%.3f" (+ 13.5 (float (/ (rand-int 50) 100)))))
+  (println (str "test-host-get-voltage called. Voltage is: " voltage))
+  (str voltage "\n"))
 
 (defn tcp-receive
   "Read a line of textual data from the given socket"
@@ -33,12 +35,15 @@
           msg-out (handler msg-in)]
       (tcp-send sock msg-out))))
 
+(defn tcp-handler-invalid-message-received [input]
+  (println "Invalid message received: " input)
+  "error\n")
+
 (defn tcp-handler
   [input]
-  (println "tcp-handler called")
   (case input
     "voltage" (test-host-get-voltage)
-    "invalid"))
+    (tcp-handler-invalid-message-received input)))
 
 (defn -main
   "usage"
